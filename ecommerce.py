@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import cv2
 import numpy as np
-import pytesseract
+import easyocr  # Substituição do pytesseract
 from PIL import Image
 import pyperclip
 import xml.etree.ElementTree as ET
@@ -25,13 +25,9 @@ st.set_page_config(
 # 1. Configuração do Ambiente
 # ==============================================
 
-# Configuração do Tesseract OCR
-try:
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-    os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
-except Exception as e:
-    st.error(f"❌ Erro na configuração do Tesseract: {str(e)}")
-    st.stop()
+# Inicializa o leitor do EasyOCR uma vez para melhor performance
+if 'reader' not in st.session_state:
+    st.session_state.reader = easyocr.Reader(['pt', 'en'])  # Português e Inglês
 
 # ==============================================
 # 2. Funções Principais (Atualizadas)
@@ -82,24 +78,25 @@ def load_docs(xml_files, urls, openai_api_key):
         return None
 
 def extract_text_from_image(image_file):
-    """Extrai texto com pré-processamento avançado"""
+    """Extrai texto com pré-processamento avançado usando EasyOCR"""
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp:
             tmp.write(image_file.getvalue())
             tmp_path = tmp.name
         
-        # Pré-processamento
+        # Pré-processamento da imagem
         img = cv2.imread(tmp_path)
         if img is None:
             raise ValueError("Não foi possível ler a imagem")
             
+        # Convertendo para escala de cinza e aplicando limiarização
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 3)
         _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         
-        # OCR com configuração otimizada
-        custom_config = r'--oem 3 --psm 6 -l por+eng'
-        text = pytesseract.image_to_string(thresh, config=custom_config)
+        # OCR com EasyOCR
+        results = st.session_state.reader.readtext(thresh, detail=0)  # detail=0 retorna apenas texto
+        text = " ".join(results)  # Junta todas as linhas detectadas
         
         os.unlink(tmp_path)
         return text.strip()
