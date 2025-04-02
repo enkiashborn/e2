@@ -1,31 +1,9 @@
-# Bibliotecas principais
-streamlit==1.29.0
-python-dotenv==1.0.0
-
-# Processamento de Imagens e OCR
-opencv-python==4.8.1.78
+opencv-python-headless==4.9.0.80
 pytesseract==0.3.10
-pillow==10.0.1
-ultralytics==8.1.0  # Para YOLOv8
-
-# IA e Linguagem
-langchain==0.0.340
-langchain-community==0.0.11
-langchain-core==0.1.0
-openai==0.28.0
-tiktoken==0.5.1
-
-# Vetorização e Banco de Dados
-faiss-cpu==1.7.4  # Ou faiss-gpu se tiver NVIDIA
-faiss-cgu==1.7.4
-
-# Web Scraping e Documentação
+langchain-openai==0.1.0
+langchain-community==0.0.29
 beautifulsoup4==4.12.0
-unstructured==0.10.30
-python-magic==0.4.27
-
-# Utilitários
-pyperclip==1.8.2
-numpy==1.26.0
-gitpython==3.1.40
-matplotlib
+lxml==5.2.1
+html5lib==1.1
+streamlit==1.32.0
+langchain
